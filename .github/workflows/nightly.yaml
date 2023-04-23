@@ -19,7 +19,7 @@ name: Nightly
 
 on:
   push:
-    branches: [test-push-img]
+    branches: [unstable]
   pull_request:
     paths: ['.github/workflows/nightly.yaml']
 
@@ -30,6 +30,23 @@ jobs:
     steps:
 
       - uses: actions/checkout@v3
+      
+      - name: Cache redis-cli
+        id: cache-redis-cli
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/local/bin/redis-cli
+          key: ubuntu-redis-cli
+  
+      - name: Install redis-cli
+        if: steps.cache-redis-cli.outputs.cache-hit != 'true'
+        run: |
+          curl -O https://download.redis.io/releases/redis-6.2.7.tar.gz
+          tar -xzvf redis-6.2.7.tar.gz
+          mkdir -p $HOME/local/bin
+          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/ && popd
+
       - name: Login Docker Hub
         if: (github.event_name != 'pull_request')
         uses: docker/login-action@v1
@@ -46,15 +63,12 @@ jobs:
 
       - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
-      
-      - name: Get core numbers
-        run: echo "NPROC=$(nproc)" >> $GITHUB_ENV
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: colinchamber/kvrocks-customize
+          images: apache/kvrocks
           flavor: latest=false
           tags: |
             type=sha,prefix=nightly-{{date 'YYYYMMDD'}}-,format=short
@@ -67,5 +81,3 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            MORE_BUILD_ARGS=-j${{ env.NPROC }}
