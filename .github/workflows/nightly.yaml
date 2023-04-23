@@ -19,7 +19,7 @@ name: Nightly
 
 on:
   push:
-    branches: [unstable]
+    branches: [test-push-img]
   pull_request:
     paths: ['.github/workflows/nightly.yaml']
 
