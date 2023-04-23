@@ -47,6 +47,10 @@ jobs:
       - name: Print debug information
         run: |
           ls -l $HOME/local/bin/
+      - name: Copy redis-cli to tools folder
+        run: |
+          mkdir -p tools
+          cp $HOME/local/bin/redis-cli tools/
       - name: Login Docker Hub
         if: (github.event_name != 'pull_request')
         uses: docker/login-action@v1
