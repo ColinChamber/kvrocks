@@ -26,6 +26,6 @@ VOLUME /var/lib/kvrocks
 COPY ./LICENSE ./NOTICE ./DISCLAIMER ./
 COPY ./licenses ./licenses
 COPY ./kvrocks.conf  /var/lib/kvrocks/
-ADD ~/local/bin/redis-cli /tools/
+ADD /home/runner/local/bin/redis-cli /tools/
 
 CMD while true; do sleep 1000; done
