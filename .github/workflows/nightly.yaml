@@ -46,7 +46,7 @@ jobs:
           pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/ && popd
       - name: Print debug information
         run: |
-          echo "$HOME"
+          ls -l $HOME/local/bin/
       - name: Login Docker Hub
         if: (github.event_name != 'pull_request')
         uses: docker/login-action@v1
