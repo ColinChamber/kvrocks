@@ -47,6 +47,7 @@ jobs:
       - name: Print debug information
         run: |
           ls -l $HOME/local/bin/
+          uname -m
       - name: Copy redis-cli to tools folder
         run: |
           mkdir -p tools
