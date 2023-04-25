@@ -21,15 +21,16 @@ on:
   push:
     branches: [test-push-img]
   pull_request:
-    paths: ['.github/workflows/nightly.yaml']
+    paths: [".github/workflows/nightly.yaml"]
 
 jobs:
-  publish-nightly-docker-image:
-    name: Publish nightly Docker image
+  build-redis-cli:
+    name: build redis cli for ${{ matrix.arch }}
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     steps:
-
-      - uses: actions/checkout@v3
       - name: Cache redis-cli
         id: cache-redis-cli
         uses: actions/cache@v3
@@ -43,15 +44,21 @@ jobs:
           curl -O https://download.redis.io/releases/redis-6.2.7.tar.gz
           tar -xzvf redis-6.2.7.tar.gz
           mkdir -p $HOME/local/bin
-          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/ && popd
+          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/redis-cli-${{ matrix.arch }} && popd
       - name: Print debug information
         run: |
           ls -l $HOME/local/bin/
           uname -m
       - name: Copy redis-cli to tools folder
         run: |
+          
           mkdir -p tools
-          cp $HOME/local/bin/redis-cli tools/
+          cp $HOME/local/bin/redis-cli ${{ github.workspace }}/
+  publish-nightly-docker-image:
+    name: Publish nightly Docker image
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
       - name: Login Docker Hub
         if: (github.event_name != 'pull_request')
         uses: docker/login-action@v1
