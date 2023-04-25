@@ -37,7 +37,7 @@ jobs:
         with:
           path: |
             ~/local/bin/redis-cli
-          key: ubuntu-redis-cli
+          key: ubuntu-redis-cli-${{ matrix.arch }}
       - name: Install redis-cli
         if: steps.cache-redis-cli.outputs.cache-hit != 'true'
         run: |
@@ -51,9 +51,7 @@ jobs:
           uname -m
       - name: Copy redis-cli to tools folder
         run: |
-          
-          mkdir -p tools
-          cp $HOME/local/bin/redis-cli ${{ github.workspace }}/
+          cp $HOME/local/bin/redis-cli-${{ matrix.arch }} ${{ github.workspace }}/
   publish-nightly-docker-image:
     name: Publish nightly Docker image
     runs-on: ubuntu-20.04
