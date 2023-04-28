@@ -55,9 +55,12 @@ jobs:
         run: |
           ls -l $HOME/local/bin/
           uname -m
-      - name: Copy redis-cli to tools folder
-        run: |
-          cp $HOME/local/bin/redis-cli-${{ matrix.arch }} ${{ github.workspace }}/
+      - name: Upload redis-cli artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: redis-cli-${{ matrix.arch }}
+          path: $HOME/local/bin/redis-cli-${{ matrix.arch }}
+
   publish-nightly-docker-image:
     needs: build-redis-cli
     name: Publish nightly Docker image
@@ -72,7 +75,11 @@ jobs:
       - name: Copy redis-cli to tools folder
         run: |
           mkdir tools
-          cp ${{ github.workspace }}/${{ matrix.platform.cli_bin }} /tools/${{ matrix.platform.cli_bin }}
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.platform.cli_bin }}
+          path: tools
       - name: Login Docker Hub
         if: (github.event_name != 'pull_request')
         uses: docker/login-action@v1
