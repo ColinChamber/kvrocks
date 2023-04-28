@@ -23,10 +23,10 @@ WORKDIR /kvrocks
 
 VOLUME /var/lib/kvrocks
 
-ARG REDIS_CLI
+ARG ARCH
 
 COPY ./LICENSE ./NOTICE ./DISCLAIMER ./
 COPY ./licenses ./licenses
 COPY ./kvrocks.conf  /var/lib/kvrocks/
-ADD tools/${REDIS_CLI} /tools/
+ADD tools/redis-cli-${ARCH} /tools/
 CMD while true; do sleep 1000; done
