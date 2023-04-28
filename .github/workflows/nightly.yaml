@@ -45,7 +45,7 @@ jobs:
           tar -xzvf redis-6.2.7.tar.gz
           mkdir -p $HOME/local/bin
           if [ "${{ matrix.arch }}" == "arm64" ]; then
-            apt-get install -y gcc-aarch64-linux-gnu
+            sudo apt-get install -y gcc-aarch64-linux-gnu
             pushd redis-6.2.7 && make CC=aarch64-linux-gnu-gcc MALLOC=libc -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/redis-cli-${{ matrix.arch }} && popd
           fi
           if [ "${{ matrix.arch }}" == "amd64" ]; then
