@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: redis-cli-${{ matrix.arch }}
-          path: $HOME/local/bin/redis-cli-${{ matrix.arch }}
+          path: $HOME/local/bin/
 
   publish-nightly-docker-image:
     needs: build-redis-cli
