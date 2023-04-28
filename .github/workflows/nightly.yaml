@@ -59,6 +59,7 @@ jobs:
         run: |
           cp $HOME/local/bin/redis-cli-${{ matrix.arch }} ${{ github.workspace }}/
   publish-nightly-docker-image:
+    needs: build-redis-cli
     name: Publish nightly Docker image
     runs-on: ubuntu-20.04
     strategy:
