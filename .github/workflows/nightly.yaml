@@ -44,7 +44,13 @@ jobs:
           curl -O https://download.redis.io/releases/redis-6.2.7.tar.gz
           tar -xzvf redis-6.2.7.tar.gz
           mkdir -p $HOME/local/bin
-          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/redis-cli-${{ matrix.arch }} && popd
+          if [ "${{ matrix.arch }}" == "arm64" ]; then
+            apt-get install -y gcc-aarch64-linux-gnu
+            pushd redis-6.2.7 && BUILD_TLS=yes make CC=aarch64-linux-gnu-gcc MALLOC=libc -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/redis-cli-${{ matrix.arch }} && popd
+          fi
+          if [ "${{ matrix.arch }}" == "amd64" ]; then
+            pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/redis-cli-${{ matrix.arch }} && popd
+          fi
       - name: Print debug information
         run: |
           ls -l $HOME/local/bin/
@@ -55,6 +61,11 @@ jobs:
   publish-nightly-docker-image:
     name: Publish nightly Docker image
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        platform:
+          - { target: "linux/amd64", cli_bin: "redis-cli-amd64" }
+          - { target: "linux/arm64", cli_bin: "redis-cli-arm64" }
     steps:
       - uses: actions/checkout@v3
       - name: Login Docker Hub
@@ -87,7 +98,8 @@ jobs:
       - uses: docker/build-push-action@v3
         with:
           context: .
-          platforms: linux/amd64, linux/arm64
+          platforms: ${{ matrix.platform.target }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          args: REDIS_CLI=${{ matrix.platform.cli_bin }}
