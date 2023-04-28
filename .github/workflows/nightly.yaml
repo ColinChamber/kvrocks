@@ -46,10 +46,10 @@ jobs:
           mkdir -p $HOME/local/bin
           if [ "${{ matrix.arch }}" == "arm64" ]; then
             sudo apt-get install -y gcc-aarch64-linux-gnu
-            pushd redis-6.2.7 && make CC=aarch64-linux-gnu-gcc MALLOC=libc -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/redis-cli-${{ matrix.arch }} && popd
+            pushd redis-6.2.7 && make CC=aarch64-linux-gnu-gcc MALLOC=libc -j$NPROC redis-cli && mv src/redis-cli ${{ github.workspace }}/redis-cli-${{ matrix.arch }} && popd
           fi
           if [ "${{ matrix.arch }}" == "amd64" ]; then
-            pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/redis-cli-${{ matrix.arch }} && popd
+            pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli ${{ github.workspace }}/redis-cli-${{ matrix.arch }} && popd
           fi
       - name: Print debug information
         run: |
@@ -61,7 +61,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: redis-cli-${{ matrix.arch }}
-          path: $HOME/local/bin/redis-cli-${{ matrix.arch }}
+          path: ${{ github.workspace }}/redis-cli-${{ matrix.arch }}
 
   publish-nightly-docker-image:
     needs: build-redis-cli
