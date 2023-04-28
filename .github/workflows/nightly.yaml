@@ -55,11 +55,13 @@ jobs:
         run: |
           ls -l $HOME/local/bin/
           uname -m
+          echo "$HOME"
+
       - name: Upload redis-cli artifact
         uses: actions/upload-artifact@v2
         with:
           name: redis-cli-${{ matrix.arch }}
-          path: $HOME/local/bin/
+          path: $HOME/local/bin/redis-cli-${{ matrix.arch }}
 
   publish-nightly-docker-image:
     needs: build-redis-cli
