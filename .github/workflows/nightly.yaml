@@ -67,20 +67,18 @@ jobs:
     needs: build-redis-cli
     name: Publish nightly Docker image
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        platform:
-          - { target: "linux/amd64", cli_bin: "redis-cli-amd64" }
-          - { target: "linux/arm64", cli_bin: "redis-cli-arm64" }
     steps:
       - uses: actions/checkout@v3
       - name: Copy redis-cli to tools folder
         run: |
           mkdir tools
+      - name: Debug platforms
+        run: |
+          echo "${{ matrix.platform }}"
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: ${{ matrix.platform.cli_bin }}
+          name: redis-cli-$(echo "${{ matrix.platform }}" | sed 's/^linux\///')
           path: tools
       - name: Login Docker Hub
         if: (github.event_name != 'pull_request')
@@ -112,8 +110,7 @@ jobs:
       - uses: docker/build-push-action@v3
         with:
           context: .
-          platforms: ${{ matrix.platform.target }}
+          platforms: linux/amd64, linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          args: REDIS_CLI=${{ matrix.platform.cli_bin }}
