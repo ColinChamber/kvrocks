@@ -69,16 +69,18 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - name: Copy redis-cli to tools folder
+      - name: Make tools directory
         run: |
           mkdir tools
-      - name: Debug platforms
-        run: |
-          echo "${{ matrix.platform }}"
-      - name: Download artifact
+      - name: Download redis-cli-arm64 artifact
         uses: actions/download-artifact@v2
         with:
-          name: redis-cli-$(echo "${{ matrix.platform }}" | sed 's/^linux\///')
+          name: redis-cli-arm64
+          path: tools
+      - name: Download redis-cli-amd64 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: redis-cli-amd64
           path: tools
       - name: Login Docker Hub
         if: (github.event_name != 'pull_request')
@@ -114,3 +116,5 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            ARCH=$(echo "${{ matrix.platform }}" | sed 's/^linux\///')
