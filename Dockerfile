@@ -23,10 +23,11 @@ WORKDIR /kvrocks
 
 VOLUME /var/lib/kvrocks
 
-ARG ARCH
+ARG TARGET_ARCH
+RUN export REDIS_CLI=redis-cli-$(echo "$TARGET_ARCH" | sed 's/^linux\///')
 
 COPY ./LICENSE ./NOTICE ./DISCLAIMER ./
 COPY ./licenses ./licenses
 COPY ./kvrocks.conf  /var/lib/kvrocks/
-ADD tools/redis-cli-${ARCH} /tools/
+ADD tools/${REDIS_CLI} /tools/
 CMD while true; do sleep 1000; done
