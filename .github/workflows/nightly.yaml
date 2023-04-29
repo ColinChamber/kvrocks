@@ -117,4 +117,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            ARCH=$(echo "${{ matrix.platform }}" | sed 's/^linux\///')
+            TARGET_ARCH=${{ matrix.platform }}
