@@ -21,8 +21,6 @@ FROM ubuntu:focal
 ARG MORE_BUILD_ARGS
 RUN set -x ; echo ${MORE_BUILD_ARGS}
 
-RUN set -x ; uname -m
-
 ARG TARGET_ARCH
 RUN set -x ; echo ${TARGET_ARCH}
 RUN export REDIS_CLI=redis-cli-$(echo "${TARGET_ARCH}" | sed 's/^linux\///')
