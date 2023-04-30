@@ -24,6 +24,7 @@ RUN set -x ; echo ${MORE_BUILD_ARGS}
 ARG TARGETARCH
 RUN set -x ; echo ${TARGETARCH}
 COPY tools/redis-cli-${TARGETARCH} /usr/bin/redis-cli
+RUN chmod a+x /usr/bin/redis-cli
 
 RUN apt update && apt install -y libssl-dev
 
