@@ -22,10 +22,8 @@ ARG MORE_BUILD_ARGS
 RUN set -x ; echo ${MORE_BUILD_ARGS}
 
 ARG TARGETARCH
-RUN set -x ; echo ${TARGET_ARCH}
-RUN export REDIS_CLI=redis-cli-$(echo "${TARGETARCH}" | sed 's/^linux\///')
-COPY tools/${REDIS_CLI} /usr/bin/
-RUN echo "REDIS_CLI: ${TARGETARCH}"
+RUN set -x ; echo ${TARGETARCH}
+COPY tools/redis-cli-${TARGETARCH} /usr/bin/
 
 RUN apt update && apt install -y libssl-dev
 
