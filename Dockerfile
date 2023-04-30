@@ -15,31 +15,19 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM ubuntu:focal as build
-
-ARG MORE_BUILD_ARGS
-
-# workaround tzdata install hanging
-ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-RUN apt update && apt install -y git gcc g++ make cmake autoconf automake libtool python3 libssl-dev
-WORKDIR /kvrocks
-
-COPY . .
-RUN ./x.py build -DENABLE_OPENSSL=ON -DPORTABLE=ON $MORE_BUILD_ARGS
 
 FROM ubuntu:focal
 
 ARG TARGET_ARCH
 RUN export REDIS_CLI=redis-cli-$(echo "$TARGET_ARCH" | sed 's/^linux\///')
 COPY tools/${REDIS_CLI} /usr/bin/
+RUN echo "REDIS_CLI: $REDIS_CLI"
 
 RUN apt update && apt install -y libssl-dev
 
 WORKDIR /kvrocks
 
-COPY --from=build /kvrocks/build/kvrocks ./bin/
+
 
 VOLUME /var/lib/kvrocks
 
