@@ -15,14 +15,23 @@
 # specific language governing permissions and limitations
 # under the License.
 
+FROM ubuntu:focal as build
+
+ARG MORE_BUILD_ARGS
+
+# workaround tzdata install hanging
+ENV TZ=Asia/Shanghai
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt update && apt install -y git gcc g++ make cmake autoconf automake libtool python3 libssl-dev
+WORKDIR /kvrocks
+
+COPY . .
+RUN ./x.py build -DENABLE_OPENSSL=ON -DPORTABLE=ON $MORE_BUILD_ARGS
 
 FROM ubuntu:focal
 
-ARG MORE_BUILD_ARGS
-RUN set -x ; echo ${MORE_BUILD_ARGS}
-
 ARG TARGETARCH
-RUN set -x ; echo ${TARGETARCH}
 COPY tools/redis-cli-${TARGETARCH} /usr/bin/redis-cli
 RUN chmod a+x /usr/bin/redis-cli
 
@@ -30,7 +39,7 @@ RUN apt update && apt install -y libssl-dev
 
 WORKDIR /kvrocks
 
-
+COPY --from=build /kvrocks/build/kvrocks ./bin/
 
 VOLUME /var/lib/kvrocks
 
@@ -39,4 +48,4 @@ COPY ./licenses ./licenses
 COPY ./kvrocks.conf  /var/lib/kvrocks/
 
 EXPOSE 6666:6666
-CMD while true; do sleep 1000; done
+ENTRYPOINT ["./bin/kvrocks", "-c", "/var/lib/kvrocks/kvrocks.conf", "--dir", "/var/lib/kvrocks"]
