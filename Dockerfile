@@ -21,7 +21,7 @@ FROM ubuntu:focal
 ARG TARGET_ARCH
 RUN export REDIS_CLI=redis-cli-$(echo "$TARGET_ARCH" | sed 's/^linux\///')
 COPY tools/${REDIS_CLI} /usr/bin/
-RUN echo "REDIS_CLI: $REDIS_CLI"
+RUN echo "REDIS_CLI: $TARGET_ARCH"
 
 RUN apt update && apt install -y libssl-dev
 
