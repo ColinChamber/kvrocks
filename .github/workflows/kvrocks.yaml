@@ -195,7 +195,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: redis-cli-amd64
-          path: ${{ github.workspace }}/local/bin/redis-cli
+          path: /Users/runner/local/bin/redis-cli
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
