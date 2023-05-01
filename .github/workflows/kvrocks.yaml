@@ -169,7 +169,10 @@ jobs:
           sudo apt update
           sudo apt install -y ninja-build
           echo "NPROC=$(nproc)" >> $GITHUB_ENV
-
+      - name: Debug print A
+        run: |
+          realpath $HOME
+          
       - name: Cache redis
         id: cache-redis
         uses: actions/cache@v3
@@ -182,13 +185,17 @@ jobs:
         run: |
           curl -O https://download.redis.io/releases/redis-6.2.7.tar.gz
           tar -xzvf redis-6.2.7.tar.gz
-          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli ${{ github.workspace }}/ && popd
+          mkdir -p $HOME/local/bin
+          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/ && popd
       
+      - name: Debug print A
+        run: |
+          ls $HOME/local/bin
       - name: Upload redis-cli artifact
         uses: actions/upload-artifact@v2
         with:
           name: redis-cli-amd64
-          path: ${{ github.workspace }}/redis-cli
+          path: ${{ github.workspace }}/local/bin/redis-cli
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -221,7 +228,7 @@ jobs:
           ulimit -c unlimited
           export LSAN_OPTIONS="suppressions=$(realpath ./tests/lsan-suppressions)"
           export TSAN_OPTIONS="suppressions=$(realpath ./tests/tsan-suppressions)"
-          export PATH=$PATH:${{ github.workspace }}
+          export PATH=$PATH:$HOME/local/bin/
           GOCASE_RUN_ARGS=""
           if [[ -n "${{ matrix.with_openssl }}" ]] && [[ "${{ matrix.os }}" == ubuntu* ]]; then
             git clone https://github.com/jsha/minica
