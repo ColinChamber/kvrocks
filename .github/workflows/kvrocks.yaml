@@ -171,7 +171,7 @@ jobs:
           echo "NPROC=$(nproc)" >> $GITHUB_ENV
       - name: Debug print A
         run: |
-          realpath $HOME
+          echo $HOME
           
       - name: Cache redis
         id: cache-redis
@@ -188,7 +188,7 @@ jobs:
           mkdir -p $HOME/local/bin
           pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/ && popd
       
-      - name: Debug print A
+      - name: Debug print B
         run: |
           ls $HOME/local/bin
       - name: Upload redis-cli artifact
