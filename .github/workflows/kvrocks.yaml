@@ -182,14 +182,13 @@ jobs:
         run: |
           curl -O https://download.redis.io/releases/redis-6.2.7.tar.gz
           tar -xzvf redis-6.2.7.tar.gz
-          mkdir -p $HOME/local/bin
-          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/ && popd
+          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli ${{ github.workspace }}/ && popd
       
       - name: Upload redis-cli artifact
         uses: actions/upload-artifact@v2
         with:
           name: redis-cli-amd64
-          path: $HOME/local/bin/redis-cli
+          path: ${{ github.workspace }}/redis-cli
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -222,7 +221,7 @@ jobs:
           ulimit -c unlimited
           export LSAN_OPTIONS="suppressions=$(realpath ./tests/lsan-suppressions)"
           export TSAN_OPTIONS="suppressions=$(realpath ./tests/tsan-suppressions)"
-          export PATH=$PATH:$HOME/local/bin/
+          export PATH=$PATH:${{ github.workspace }}
           GOCASE_RUN_ARGS=""
           if [[ -n "${{ matrix.with_openssl }}" ]] && [[ "${{ matrix.os }}" == ubuntu* ]]; then
             git clone https://github.com/jsha/minica
