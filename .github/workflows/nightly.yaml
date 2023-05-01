@@ -66,8 +66,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Make tools directory
-        run: |
-          mkdir tools
+        run: mkdir tools
 
       - name: Download redis-cli-arm64 artifact
         uses: actions/download-artifact@v2

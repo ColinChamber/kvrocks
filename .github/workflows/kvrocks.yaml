@@ -184,6 +184,12 @@ jobs:
           tar -xzvf redis-6.2.7.tar.gz
           mkdir -p $HOME/local/bin
           pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/ && popd
+      
+      - name: Upload redis-cli artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: redis-cli-amd64
+          path: $HOME/local/bin/redis-cli
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -265,6 +271,16 @@ jobs:
       - uses: actions/checkout@v3
       - name: Get core numbers
         run: echo "NPROC=$(nproc)" >> $GITHUB_ENV
+      
+      - name: Make tools directory
+        run: mkdir tools
+      
+      - name: Download redis-cli-amd64 artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: redis-cli-amd64
+          path: tools
+
       - uses: docker/build-push-action@v3
         with:
           context: .
