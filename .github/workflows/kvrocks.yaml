@@ -153,7 +153,7 @@ jobs:
           curl -O https://download.redis.io/releases/redis-6.2.7.tar.gz
           tar -xzvf redis-6.2.7.tar.gz
           mkdir -p $HOME/local/bin
-          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && cp src/redis-cli $HOME/local/bin/ && mv src/redis-cli ${{ github.workspace }}/  && popd
+          pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && cp src/redis-cli $HOME/local/bin/ && popd
       
       - name: Debug print A
         run: |
@@ -163,7 +163,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: redis-cli-amd64
-          path: ${{ github.workspace }}/redis-cli
+          path: $HOME/local/bin/redis-cli
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
