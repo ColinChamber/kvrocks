@@ -157,6 +157,7 @@ jobs:
       
       - name: Debug print A
         run: |
+          echo "HOME: $HOME"
           ls $HOME/local/bin
       - name: Upload redis-cli artifact
         uses: actions/upload-artifact@v2
