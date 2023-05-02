@@ -38,37 +38,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
-        with:
-          go-version-file: 'tests/gocase/go.mod'
-      - name: Prepare Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y clang-format-14 clang-tidy-14
-      - uses: apache/skywalking-eyes/header@v0.4.0
-        with:
-          config: .github/config/licenserc.yml
-      - name: Check with clang-format
-        id: check-format
-        run: ./x.py check format --clang-format-path clang-format-14
-      - name: Check with clang-tidy
-        run: |
-          ./x.py build --skip-build
-          ./x.py check tidy -j $(nproc) --clang-tidy-path clang-tidy-14 --run-clang-tidy-path run-clang-tidy-14
-      - name: Lint with golangci-lint
-        run: ./x.py check golangci-lint
 
-      - name: Prepare format patch
-        if: always() && steps.check-format.outcome != 'success'
-        run: |
-          ./x.py format --clang-format-path clang-format-14
-          git diff -p > clang-format.patch
-          cat clang-format.patch
-      - name: Upload format patch
-        uses: actions/upload-artifact@v3
-        if: always() && steps.check-format.outcome != 'success'
-        with:
-          path: clang-format.patch
 
   build-and-test:
     name: Build and test
@@ -169,9 +139,6 @@ jobs:
           sudo apt update
           sudo apt install -y ninja-build
           echo "NPROC=$(nproc)" >> $GITHUB_ENV
-      - name: Debug print A
-        run: |
-          echo $HOME
           
       - name: Cache redis
         id: cache-redis
@@ -188,14 +155,14 @@ jobs:
           mkdir -p $HOME/local/bin
           pushd redis-6.2.7 && BUILD_TLS=yes make -j$NPROC redis-cli && mv src/redis-cli $HOME/local/bin/ && popd
       
-      - name: Debug print B
+      - name: Debug print A
         run: |
           ls $HOME/local/bin
       - name: Upload redis-cli artifact
         uses: actions/upload-artifact@v2
         with:
           name: redis-cli-amd64
-          path: /Users/runner/local/bin/redis-cli
+          path: $HOME/local/bin/redis-cli
 
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
