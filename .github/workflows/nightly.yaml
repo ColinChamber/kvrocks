@@ -19,7 +19,7 @@ name: Nightly
 
 on:
   push:
-    branches: [unstable]
+    branches: [add-redis-cli-by-dockerbuild]
   pull_request:
     paths: ['.github/workflows/nightly.yaml']
 
