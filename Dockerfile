@@ -22,24 +22,42 @@ ARG MORE_BUILD_ARGS
 # workaround tzdata install hanging
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt update &&\
+    apt install -y git gcc g++ make cmake autoconf automake libtool python3 libssl-dev \
+    curl apt-utils pkg-config 
 
-RUN apt update && apt install -y git gcc g++ make cmake autoconf automake libtool python3 libssl-dev
 WORKDIR /kvrocks
 
 COPY . .
-RUN ./x.py build -DENABLE_OPENSSL=ON -DPORTABLE=ON $MORE_BUILD_ARGS
+
+RUN curl -O https://download.redis.io/releases/redis-6.2.7.tar.gz && \
+    tar -xzvf redis-6.2.7.tar.gz
+
+RUN mkdir tools && \
+    cd redis-6.2.7 && \
+    make redis-cli 
+
+    
+RUN ls -l redis-6.2.7/src/redis-cli
+RUN mv redis-6.2.7/src/redis-cli tools/redis-cli
+RUN ls -lh tools/redis-cli
+
+RUN mkdir build && touch build/kvrocks
 
 FROM ubuntu:focal
 
-RUN apt update && apt install -y libssl-dev
+
 
 WORKDIR /kvrocks
 
 COPY --from=build /kvrocks/build/kvrocks ./bin/
+COPY --from=build /kvrocks/tools/redis-cli ./bin/
 
+RUN ls -lh ./bin
 ARG TARGETARCH
-COPY tools/redis-cli-${TARGETARCH} /usr/bin/redis-cli
-RUN chmod a+x /usr/bin/redis-cli
+RUN echo "TARGETARCH is set to???: ${TARGETARCH}"
+
+
 
 VOLUME /var/lib/kvrocks
 
@@ -48,4 +66,4 @@ COPY ./licenses ./licenses
 COPY ./kvrocks.conf  /var/lib/kvrocks/
 
 EXPOSE 6666:6666
-ENTRYPOINT ["./bin/kvrocks", "-c", "/var/lib/kvrocks/kvrocks.conf", "--dir", "/var/lib/kvrocks"]
+CMD while true; do sleep 1000; done
